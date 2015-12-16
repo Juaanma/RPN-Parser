@@ -15,10 +15,22 @@
 ; Otherwise, there are more values in the stack
 ; 	(Error) The user input has too many values.
 
+
 SYS_READ equ 3
 SYS_WRITE equ 4
 STDIN equ 0
 STDOUT equ 1
+
+; A macro with two parameters.
+; Implements the write system call.
+%macro write_string 2
+    mov eax, SYS_WRITE
+    mov ebx, STDOUT
+    mov ecx, %1
+    mov edx, %2
+
+    int 80h             ; Invoke the kernel.
+%endmacro
 
 segment .bss 
 char resb 1
@@ -151,14 +163,10 @@ print_integer:
     cmp byte [len], 0
     je end_print
 
-    mov eax, SYS_WRITE
-    mov ebx, STDOUT
     pop dword [dig]
     add dword [dig], '0'
-    mov ecx, dig
-    mov edx, 1
 
-    int 80h
+    write_string dig, 1
 
     dec byte [len]
     jmp print_digits
@@ -166,12 +174,7 @@ print_integer:
     ; End of the print_integer procedure.
     end_print:               
     ; Print a newline character.
-    mov eax, SYS_WRITE
-    mov ebx, STDOUT
-    mov ecx, 0xA             
-    mov edx, 1
-    
-    int 80h
+    write_string 0xA, 1
 
     pop ebp
     ret

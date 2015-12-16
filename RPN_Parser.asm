@@ -16,26 +16,9 @@ segment .text
 global _start
 
 _start: 
-    mov eax, SYS_WRITE
-    mov ebx, STDOUT
-    mov ecx, msg1
-    mov edx, msg1_len
-
-    int 80h
-
-    mov eax, SYS_WRITE
-    mov ebx, STDOUT
-    mov ecx, msg2
-    mov edx, msg2_len
-
-    int 80h
-
-    mov eax, SYS_WRITE
-    mov ebx, STDOUT
-    mov ecx, msg3
-    mov edx, msg3_len
-
-    int 80h
+    write_string msg1, msg1_len
+    write_string msg2, msg2_len
+    write_string msg3, msg3_len
 
     call read_and_parse
 
