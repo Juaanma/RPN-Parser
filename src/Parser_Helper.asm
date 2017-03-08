@@ -32,13 +32,15 @@ STDOUT equ 1
     int 80h             ; Invoke the kernel.
 %endmacro
 
-segment .bss 
+segment .bss
 char resb 1
 dig resd 1
 
 segment .data
 num dd 0
 len db 0
+msg db 0xA
+msg_len equ $ - msg
 
 segment .text
 ; This procedure will read each part of the expression,
@@ -46,19 +48,19 @@ segment .text
 read_and_parse:
     ; pusha We could push the registers' values to the stack, but it's not necessary.
 
-    read_loop:          ; A loop to read and parse each character. 
+    read_loop:          ; A loop to read and parse each character.
 
     mov eax, SYS_READ
     mov ebx, STDIN
     mov ecx, char
-    mov edx, 1          ; We'll read one character at a time 
-    
+    mov edx, 1          ; We'll read one character at a time
+
     int 80h             ; Invoke the kernel.
 
-    cmp byte [char], 10      ; If we read a new line character (decimal 10 in ASCII), it means that we have finished reading the expression.   
+    cmp byte [char], 10      ; If we read a new line character (decimal 10 in ASCII), it means that we have finished reading the expression.
     je finished_reading
 
-    cmp byte [char], ' ' 
+    cmp byte [char], ' '
     je space
 
     cmp byte [char], '0'
@@ -69,7 +71,7 @@ read_and_parse:
     pop ebx
     pop eax
     ; And evaluate the corresponding operator.
-    cmp byte [char], '+'  
+    cmp byte [char], '+'
     je plus_operator
     cmp byte [char], '-'
     je minus_operator
@@ -89,8 +91,8 @@ read_and_parse:
     jmp read_loop
 
     ; We want to divide EAX by EBX.
-    ; As the divisor is a dword (32 bits long), 
-    ; the dividend is assumed to be 64 bits 
+    ; As the divisor is a dword (32 bits long),
+    ; the dividend is assumed to be 64 bits
     ; long and in the EDX:EAX registers.
     division_operator:
     mov edx, 0                                 ; Because we only want to divide by EAX, we set EDX to 0.
@@ -105,7 +107,7 @@ read_and_parse:
 
     ; Add the last digit read to the actual number.
     create_number:
-    mov eax, [num] 
+    mov eax, [num]
     mov ebx, 10
     mul ebx
     sub byte [char], '0'
@@ -117,7 +119,7 @@ read_and_parse:
     space:
     cmp dword [num], 0
     je read_loop
-    push dword [num]  
+    push dword [num]
     mov dword [num], 0
     jmp read_loop
 
@@ -144,10 +146,10 @@ print_integer:
     ; While the number is not zero, get each digit as the remainder of the division by 10, and push it to the stack.
     extract_digits_loop:
     ; The divisor is 32 bits long (EBX register). Therefore, the dividend will be EDX:EAX, and we should set EDX to 0.
-    mov edx, 0 
-    div ebx 
+    mov edx, 0
+    div ebx
     push edx                       ; Push the remainder to the stack.
-    
+
     inc byte [len]                 ; Count the number of digits to print.
 
     ; Do while structure: count at least a digit and then check if there are no digits left (EAX == 0).
@@ -158,7 +160,7 @@ print_integer:
     jmp extract_digits_loop
 
     ; While there are digits left to print, pop one digit from the stack and print it.
-    print_digits: 
+    print_digits:
 
     cmp byte [len], 0
     je end_print
@@ -170,11 +172,11 @@ print_integer:
 
     dec byte [len]
     jmp print_digits
-    
+
     ; End of the print_integer procedure.
-    end_print:               
+    end_print:
     ; Print a newline character.
-    write_string 0xA, 1
+    write_string msg, msg_len
 
     pop ebp
     ret

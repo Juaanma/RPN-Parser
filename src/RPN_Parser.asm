@@ -15,7 +15,7 @@ msg3_len equ $ - msg3
 segment .text
 global _start
 
-_start: 
+_start:
     write_string msg1, msg1_len
     write_string msg2, msg2_len
     write_string msg3, msg3_len
@@ -23,12 +23,12 @@ _start:
     call read_and_parse
 
     ; Pass the result of the expression as an argument to the print_integer function (through the stack).
-    push dword [num]       
+    push dword [num]
 
     call print_integer
 
     ; Update the stack pointer to remove the argument from the stack.
     add esp, 4
-    
+
     mov eax, SYS_EXIT
     int 80h
