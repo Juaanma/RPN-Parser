@@ -7,5 +7,7 @@ As for now, this program doesn't support negative numbers, because it was not th
 To compile, all you have to do is run *'./compile.bash'*.
 
 ## Images
+### Example 1
 ![Example 1](https://github.com/Juaanma/RPN-Parser/blob/master/img/example_1.png)
+### Example 2
 ![Example 2](https://github.com/Juaanma/RPN-Parser/blob/master/img/example_2.png)
